@@ -1,0 +1,47 @@
+from cafeclass import *
+
+MENU = Menu()
+coffee_machine = CoffeeMaker()
+money_machine = Money_machiene(user_funds=10)  # Ten dolla dolla
+
+is_on = True
+
+while is_on:
+    choice = input(f"What would you like? ({MENU.get_items()}): ").strip().lower()
+
+    if choice == 'off':
+        is_on = False
+        print("Turning off the coffee machine. Goodbye!")
+        break
+
+
+    elif choice == 'report':
+        coffee_machine.report()
+        money_machine.report()
+
+    else:
+        drink = MENU.find_drink(choice)
+        if drink:
+            if coffee_machine.is_resource_sufficient(choice):
+                print(f"The {choice} costs ${drink.cost:.2f}. Please insert coins.")
+
+                quarters = int(input("How many quarters? "))
+                dimes = int(input("How many dimes? "))
+                nickels = int(input("How many nickels? "))
+                pennies = int(input("How many pennies? "))
+
+                total_money = money_machine.process_coins(quarters, dimes, nickels, pennies)
+
+                if total_money >= drink.cost:
+                    change = round(total_money - drink.cost, 2)
+                    if change > 0:
+                        print(f"Here is your change: ${change:.2f}")
+
+                    money_machine.profit += drink.cost
+                    for ingredient, amount in drink.ingredient.items():
+                        coffee_machine.resources[ingredient] -= amount
+
+                    print(f"Here's your {choice} ☕. Enjoy!")
+                else:
+                    print("Not enough money inserted. Refunding coins.")
+
